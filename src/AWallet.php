@@ -40,6 +40,8 @@ class AWallet
                 'nonce_hex'                   => $walletDTO->getNonce(),
             ]);
 
+            $this->setActive($wallet, $passPhrase);
+
             return [
                 'wallet' => $wallet,
                 'seedPhrase' => $walletDTO->getSeedPhrase()
@@ -64,7 +66,7 @@ class AWallet
                 nonce: $wallet->nonce_hex
             );
 
-            $this->client->setWallet($walletDTO);
+            $this->client->openWallet($walletDTO);
             $this->activeWallet = $wallet;
 
             return true;
@@ -92,10 +94,67 @@ class AWallet
     public function fetchBalance(): array
     {
         try {
-            $addressList = $this->activeWallet->keypairs->map(fn ($item) => $item->address)->toArray();
+            $addressList = $this->getAddressList();
+
             return $this->client->fetchBalance($addressList);
         } catch (\Exception $e) {
             throw $e;
         }
+    }
+
+    public function createReceipt(
+        ABlockKeypair $keyPair,
+        string $name,
+        int $amount = 1,
+        bool $defaultHash = false,
+        ?array $metaData = [],
+    ): array {
+        try {
+            return $this->client->createReceiptAsset(
+                name: $name,
+                encryptedKey: $keyPair->save,
+                nonce: $keyPair->nonce,
+                amount: $amount,
+                defaultDrsTxHash: $defaultHash,
+                metaData: $metaData
+            );
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function createReceiptPayment(
+        string $paymentAddress,
+        int $amount,
+        string $drsTxHash,
+        array $metaData = null,
+        string $excessAddress = null
+    ): array {
+        try {
+            $senderKeyPairs = $this->activeWallet->keypairs->mapWithKeys(fn ($item) => [$item->address => [
+                'encryptedKey' => $item->save,
+                'nonce' => $item->nonce
+            ]])->toArray();
+
+            return $this->client->createReceiptPayment(
+                senderKeypairs: $senderKeyPairs,
+                paymentAddress: $paymentAddress,
+                amount: $amount,
+                drsTxHash: $drsTxHash,
+                metaData: $metaData,
+                excessAddress: $excessAddress
+            );
+        } catch (Exception $e) {
+            \Log::error($e->getMessage());
+            throw $e;
+        }
+    }
+
+    private function getAddressList(): array
+    {
+        return $this->activeWallet->keypairs
+        ->map(fn ($item) => $item->address)
+        ->unique()
+        ->toArray();
     }
 }
