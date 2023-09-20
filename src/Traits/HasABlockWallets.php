@@ -6,25 +6,25 @@ namespace IODigital\ABlockLaravel\Traits;
 
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
-use IODigital\LaravelZenotta\DTO\EncryptedWalletDTO;
-use IODigital\ABlockLaravel\Models\ZenottaKeypair;
-use IODigital\ABlockLaravel\Models\ZenottaWallet;
+use IODigital\ABlockPhp\DTO\EncryptedWalletDTO;
+use IODigital\ABlockLaravel\Models\ABlockKeypair;
+use IODigital\ABlockLaravel\Models\ABlockWallet;
 use IODigital\LaravelZenotta\ZenottaClient;
 
 trait HasABlockWallets
 {
-    private ZenottaClient $client;
+    //private ZenottaClient $client;
 
-    private ?ZenottaWallet $activeWallet = null;
+    private ?ABlockWallet $activeWallet = null;
 
-    public function __construct()
-    {
-        $this->client = app()->make(ZenottaClient::class);
-    }
+    // public function __construct()
+    // {
+    //     $this->client = app()->make(ZenottaClient::class);
+    // }
 
     public function aBlockWallets(): MorphMany
     {
-        return $this->morphMany(ZenottaWallet::class, 'owner');
+        return $this->morphMany(ABlockWallet::class, 'owner');
     }
 
     // public function createABlockWallet(string $passPhrase): ZenottaWallet
