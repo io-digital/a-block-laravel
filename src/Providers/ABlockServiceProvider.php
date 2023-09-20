@@ -5,6 +5,7 @@ namespace IODigital\ABlockLaravel\Providers;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use IODigital\ABlockPHP\ABlockClient;
+use IODigital\ABlockLaravel\AWallet;
 
 class ABlockServiceProvider extends ServiceProvider
 {
@@ -17,6 +18,12 @@ class ABlockServiceProvider extends ServiceProvider
             return new ABlockClient(
                 computeHost: config('a-block.compute_host'),
                 intercomHost: config('a-block.intercom_host'),
+            );
+        });
+
+        $this->app->bind('AWallet', function () {
+            return new AWallet(
+                client: $this->app->make(ABlockClient::class)
             );
         });
     }

@@ -19,7 +19,10 @@
         "laravel": {
             "providers": [
                 "IODigital\\ABlockLaravel\\Providers\\ABlockServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "AWallet": "IODigital\\ABlockLaravel\\Facades\\AWalletFacade"
+            }
         }
     },
     "minimum-stability": "dev",

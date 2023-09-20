@@ -12,6 +12,7 @@ class ABlockWallet extends Model
     use HasFactory;
 
     protected $fillable = [
+        'name',
         'master_key_encrypted_base64',
         'nonce_hex',
         'owner_type',
