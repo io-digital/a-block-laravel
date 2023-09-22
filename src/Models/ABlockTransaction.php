@@ -11,17 +11,14 @@ class ABlockTransaction extends Model
     use HasFactory;
 
     protected $fillable = [
-        'a_block_keypair_id',
+        //'a_block_keypair_id',
         'druid',
+        'nonce',
         'content',
     ];
 
-    protected $casts = [
-        'content' => 'array',
-    ];
-
-    public function keypair(): BelongsTo
-    {
-        return $this->belongsTo(ABlockKeypair::class, 'a_block_keypair_id');
-    }
+    // public function keypair(): BelongsTo
+    // {
+    //     return $this->belongsTo(ABlockKeypair::class, 'a_block_keypair_id');
+    // }
 }

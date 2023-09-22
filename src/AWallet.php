@@ -6,10 +6,13 @@ use IODigital\ABlockPHP\ABlockClient;
 use Illuminate\Database\Eloquent\Model;
 use IODigital\ABlockLaravel\Models\ABlockWallet;
 use IODigital\ABlockLaravel\Models\ABlockKeypair;
+use IODigital\ABlockLaravel\Models\ABlockTransaction;
 use IODigital\ABlockPHP\DTO\EncryptedWalletDTO;
+use IODigital\ABlockPHP\DTO\PaymentAssetDTO;
 use Illuminate\Database\UniqueConstraintViolationException;
 use IODigital\ABlockPHP\Exceptions\PassPhraseNotSetException;
 use IODigital\ABlockLaravel\Exceptions\NameNotUniqueException;
+use Exception;
 
 class AWallet
 {
@@ -17,8 +20,7 @@ class AWallet
 
     public function __construct(
         private ABlockClient $client
-    ) {
-    }
+    ) {}
 
     public function setPassPhrase(string $passPhrase): void
     {
@@ -102,7 +104,7 @@ class AWallet
         }
     }
 
-    public function createReceipt(
+    public function createReceiptAsset(
         ABlockKeypair $keyPair,
         string $name,
         int $amount = 1,
@@ -123,6 +125,29 @@ class AWallet
         }
     }
 
+    // public function doAssetPayment(
+    //     string $paymentAddress,
+    //     int $amount,
+    //     string $drsTxHash,
+    //     array $metaData = null,
+    //     string $excessAddress = null
+    // ): array {
+    //     try {
+    //         $senderKeyPairs = $this->getActiveWalletKeypairs();
+
+    //         return $this->client->createReceiptPayment(
+    //             senderKeypairs: $senderKeyPairs,
+    //             paymentAddress: $paymentAddress,
+    //             amount: $amount,
+    //             drsTxHash: $drsTxHash,
+    //             metaData: $metaData,
+    //             excessAddress: $excessAddress
+    //         );
+    //     } catch (Exception $e) {
+    //         throw $e;
+    //     }
+    // }
+
     public function createReceiptPayment(
         string $paymentAddress,
         int $amount,
@@ -131,10 +156,7 @@ class AWallet
         string $excessAddress = null
     ): array {
         try {
-            $senderKeyPairs = $this->activeWallet->keypairs->mapWithKeys(fn ($item) => [$item->address => [
-                'encryptedKey' => $item->save,
-                'nonce' => $item->nonce
-            ]])->toArray();
+            $senderKeyPairs = $this->getActiveWalletKeypairs();
 
             return $this->client->createReceiptPayment(
                 senderKeypairs: $senderKeyPairs,
@@ -145,7 +167,70 @@ class AWallet
                 excessAddress: $excessAddress
             );
         } catch (Exception $e) {
-            \Log::error($e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function createTradeRequest(
+        string $otherPartyAddress,
+        string $myAddress,
+        array $myAsset,
+        array $otherPartyAsset
+    ): ABlockTransaction {
+        $keypairs = $this->getActiveWalletKeypairs();
+        $myAssetDTO = $this->makeAssetPayload($myAsset);
+        $otherPartyAssetDTO = $this->makeAssetPayload($otherPartyAsset);
+
+        $encryptedTransaction = $this->client->createTradeRequest(
+            myKeypairs: $keypairs,
+            myAddress: $myAddress,
+            otherPartyAsset: $otherPartyAssetDTO,
+            otherPartyAddress: $otherPartyAddress,
+            myAsset: $myAssetDTO
+        );
+
+        return ABlockTransaction::create([
+            'druid' => $encryptedTransaction['druid'],
+            'nonce' => $encryptedTransaction['nonce'],
+            'content' => $encryptedTransaction['save']
+        ]);
+    }
+
+    public function getPendingTransactions()
+    {
+        try {
+            $keypairs = $this->getActiveWalletKeypairs();
+            $pendingTransactions = ABlockTransaction::all();
+
+            $encryptedTransactionMap = $pendingTransactions->mapWithKeys(fn ($item) => [
+                $item->druid => [
+                    'save' => $item->content,
+                    'nonce' => $item->nonce,
+                    'druid' => $item->druid
+                ]
+            ])->toArray();
+
+            return $this->client->getPendingTransactions(
+                keypairs: $keypairs,
+                encryptedTransactionMap: $encryptedTransactionMap
+            );
+            // dd($result);
+
+            // dd($encryptedTransactionMap);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function acceptPendingTransaction(
+        string $druid,
+    ) {
+        try {
+            return $this->client->acceptPendingTransaction(
+                druid: $druid,
+                keypairs: $this->getActiveWalletKeypairs(),
+            );
+        } catch (Exception $e) {
             throw $e;
         }
     }
@@ -156,5 +241,25 @@ class AWallet
         ->map(fn ($item) => $item->address)
         ->unique()
         ->toArray();
+    }
+
+    private function getActiveWalletKeypairs(): array
+    {
+        return $this->activeWallet->keypairs->mapWithKeys(fn ($item) => [$item->address => [
+            'encryptedKey' => $item->save,
+            'nonce' => $item->nonce
+        ]])->toArray();
+    }
+
+    private function makeAssetPayload(array $asset): PaymentAssetDTO
+    {
+        return isset($asset['hash']) ? new PaymentAssetDTO(
+            amount: $asset['amount'],
+            drsTxHash: $asset['hash'],
+            assetType: PaymentAssetDTO::ASSET_TYPE_RECEIPT
+        ) : new PaymentAssetDTO(
+            amount: $asset['amount'],
+            assetType: PaymentAssetDTO::ASSET_TYPE_TOKEN
+        );
     }
 }
