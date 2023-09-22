@@ -125,29 +125,6 @@ class AWallet
         }
     }
 
-    // public function doAssetPayment(
-    //     string $paymentAddress,
-    //     int $amount,
-    //     string $drsTxHash,
-    //     array $metaData = null,
-    //     string $excessAddress = null
-    // ): array {
-    //     try {
-    //         $senderKeyPairs = $this->getActiveWalletKeypairs();
-
-    //         return $this->client->createReceiptPayment(
-    //             senderKeypairs: $senderKeyPairs,
-    //             paymentAddress: $paymentAddress,
-    //             amount: $amount,
-    //             drsTxHash: $drsTxHash,
-    //             metaData: $metaData,
-    //             excessAddress: $excessAddress
-    //         );
-    //     } catch (Exception $e) {
-    //         throw $e;
-    //     }
-    // }
-
     public function createReceiptPayment(
         string $paymentAddress,
         int $amount,
@@ -189,7 +166,7 @@ class AWallet
             myAsset: $myAssetDTO
         );
 
-        return ABlockTransaction::create([
+        return $this->activeWallet->transactions()->create([
             'druid' => $encryptedTransaction['druid'],
             'nonce' => $encryptedTransaction['nonce'],
             'content' => $encryptedTransaction['save']
@@ -200,7 +177,7 @@ class AWallet
     {
         try {
             $keypairs = $this->getActiveWalletKeypairs();
-            $pendingTransactions = ABlockTransaction::all();
+            $pendingTransactions = $this->activeWallet->transactions()->get();
 
             $encryptedTransactionMap = $pendingTransactions->mapWithKeys(fn ($item) => [
                 $item->druid => [
@@ -214,9 +191,6 @@ class AWallet
                 keypairs: $keypairs,
                 encryptedTransactionMap: $encryptedTransactionMap
             );
-            // dd($result);
-
-            // dd($encryptedTransactionMap);
         } catch (Exception $e) {
             throw $e;
         }

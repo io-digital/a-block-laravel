@@ -10,7 +10,7 @@ return new class () extends Migration {
     {
         Schema::create('a_block_transactions', function (Blueprint $table) {
             $table->id();
-            //$table->bigInteger('a_block_keypair_id');
+            $table->bigInteger('a_block_wallet_id');
             $table->enum('status', [
                 ABlockClient::TRANSACTION_STATUS_PENDING,
                 ABlockClient::TRANSACTION_STATUS_ACCEPTED,

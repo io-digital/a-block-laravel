@@ -23,9 +23,4 @@ class ABlockKeypair extends Model
     {
         return $this->belongsTo(ABlockWallet::class, 'a_block_wallet_id');
     }
-
-    // public function transactions(): HasMany
-    // {
-    //     return $this->hasMany(ABlockTransaction::class, 'a_block_keypair_id');
-    // }
 }

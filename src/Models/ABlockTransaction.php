@@ -11,14 +11,14 @@ class ABlockTransaction extends Model
     use HasFactory;
 
     protected $fillable = [
-        //'a_block_keypair_id',
+        'a_block_wallet_id',
         'druid',
         'nonce',
         'content',
     ];
 
-    // public function keypair(): BelongsTo
-    // {
-    //     return $this->belongsTo(ABlockKeypair::class, 'a_block_keypair_id');
-    // }
+    public function wallet(): BelongsTo
+    {
+        return $this->belongsTo(ABlockWallet::class, 'a_block_wallet_id');
+    }
 }

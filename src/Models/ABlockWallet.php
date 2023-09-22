@@ -28,4 +28,9 @@ class ABlockWallet extends Model
     {
         return $this->hasMany(ABlockKeypair::class);
     }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(ABlockTransaction::class, 'a_block_wallet_id');
+    }
 }
