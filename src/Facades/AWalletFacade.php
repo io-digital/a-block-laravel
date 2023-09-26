@@ -8,6 +8,6 @@ class AWalletFacade extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return 'AWallet';
+        return 'a-wallet';
     }
 }

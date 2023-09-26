@@ -80,13 +80,13 @@ class AWallet
     public function createKeypair(string $name): ABlockKeypair
     {
         try {
-            $keypairArr = $this->client->createKeypair();
+            $encryptedKeypairDTO = $this->client->createKeypair();
 
             return $this->activeWallet->keypairs()->create([
                 'name'    => $name,
-                'nonce'   => $keypairArr['nonce'],
-                'save'    => $keypairArr['save'],
-                'address' => $keypairArr['address'],
+                'nonce'   => $encryptedKeypairDTO->getNonce(),
+                'save'    => $encryptedKeypairDTO->getContent(),
+                'address' => $encryptedKeypairDTO->getAddress(),
             ]);
         } catch (\Exception $e) {
             throw $e;
