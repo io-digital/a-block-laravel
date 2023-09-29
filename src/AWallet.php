@@ -80,7 +80,7 @@ class AWallet
     public function createKeypair(string $name): ABlockKeypair
     {
         try {
-            $encryptedKeypairDTO = $this->client->createKeypair();
+            $encryptedKeypairDTO = $this->client->createKeypair($this->getAddressList());
 
             return $this->activeWallet->keypairs()->create([
                 'name'    => $name,
@@ -96,28 +96,26 @@ class AWallet
     public function fetchBalance(): array
     {
         try {
-            $addressList = $this->getAddressList();
-
-            return $this->client->fetchBalance($addressList);
+            return $this->client->fetchBalance($this->getAddressList());
         } catch (\Exception $e) {
             throw $e;
         }
     }
 
-    public function createReceiptAsset(
+    public function createAsset(
         ABlockKeypair $keyPair,
         string $name,
         int $amount = 1,
         bool $defaultHash = false,
         ?array $metaData = [],
-    ): array {
+    ): PaymentAssetDTO {
         try {
-            return $this->client->createReceiptAsset(
+            return $this->client->createAsset(
                 name: $name,
                 encryptedKey: $keyPair->save,
                 nonce: $keyPair->nonce,
                 amount: $amount,
-                defaultDrsTxHash: $defaultHash,
+                defaultHash: $defaultHash,
                 metaData: $metaData
             );
         } catch (\Exception $e) {
@@ -125,22 +123,18 @@ class AWallet
         }
     }
 
-    public function createReceiptPayment(
-        string $paymentAddress,
-        int $amount,
-        string $drsTxHash,
-        array $metaData = null,
+    public function sendAssetToAddress(
+        string $address,
+        PaymentAssetDTO $asset,
         string $excessAddress = null
     ): array {
         try {
             $senderKeyPairs = $this->getActiveWalletKeypairs();
 
-            return $this->client->createReceiptPayment(
+            return $this->client->sendAssetToAddress(
                 senderKeypairs: $senderKeyPairs,
-                paymentAddress: $paymentAddress,
-                amount: $amount,
-                drsTxHash: $drsTxHash,
-                metaData: $metaData,
+                address: $address,
+                asset: $asset,
                 excessAddress: $excessAddress
             );
         } catch (Exception $e) {
@@ -151,19 +145,17 @@ class AWallet
     public function createTradeRequest(
         string $otherPartyAddress,
         string $myAddress,
-        array $myAsset,
-        array $otherPartyAsset
+        PaymentAssetDTO $myAsset,
+        PaymentAssetDTO $otherPartyAsset
     ): ABlockTransaction {
         $keypairs = $this->getActiveWalletKeypairs();
-        $myAssetDTO = $this->makeAssetPayload($myAsset);
-        $otherPartyAssetDTO = $this->makeAssetPayload($otherPartyAsset);
 
         $encryptedTransaction = $this->client->createTradeRequest(
             myKeypairs: $keypairs,
             myAddress: $myAddress,
-            otherPartyAsset: $otherPartyAssetDTO,
+            otherPartyAsset: $otherPartyAsset,
             otherPartyAddress: $otherPartyAddress,
-            myAsset: $myAssetDTO
+            myAsset: $myAsset
         );
 
         return $this->activeWallet->transactions()->create([
@@ -209,9 +201,27 @@ class AWallet
         }
     }
 
+    public function getTokenObject(int $amount): PaymentAssetDTO
+    {
+        return new PaymentAssetDTO(
+            amount: $amount,
+            assetType: PaymentAssetDTO::ASSET_TYPE_TOKEN
+        );
+    }
+
+    public function getAssetObject(int $amount, string $hash, ?array $metaData = null): PaymentAssetDTO
+    {
+        return new PaymentAssetDTO(
+            amount: $amount,
+            drsTxHash: $hash,
+            assetType: PaymentAssetDTO::ASSET_TYPE_RECEIPT,
+            metaData: $metaData
+        );
+    }
+
     private function getAddressList(): array
     {
-        return $this->activeWallet->keypairs
+        return $this->activeWallet->keypairs()->get()
         ->map(fn ($item) => $item->address)
         ->unique()
         ->toArray();
@@ -223,17 +233,5 @@ class AWallet
             'encryptedKey' => $item->save,
             'nonce' => $item->nonce
         ]])->toArray();
-    }
-
-    private function makeAssetPayload(array $asset): PaymentAssetDTO
-    {
-        return isset($asset['hash']) ? new PaymentAssetDTO(
-            amount: $asset['amount'],
-            drsTxHash: $asset['hash'],
-            assetType: PaymentAssetDTO::ASSET_TYPE_RECEIPT
-        ) : new PaymentAssetDTO(
-            amount: $asset['amount'],
-            assetType: PaymentAssetDTO::ASSET_TYPE_TOKEN
-        );
     }
 }
