@@ -93,10 +93,11 @@ class AWallet
         }
     }
 
-    public function fetchBalance(): array
+    public function fetchBalance(?array $addresses = null): array
     {
         try {
-            return $this->client->fetchBalance($this->getAddressList());
+            $addressList = $addresses ?? $this->getAddressList();
+            return $this->client->fetchBalance($addressList);
         } catch (\Exception $e) {
             throw $e;
         }
@@ -165,7 +166,7 @@ class AWallet
         ]);
     }
 
-    public function getPendingTransactions()
+    public function getPendingTransactions(): array
     {
         try {
             $keypairs = $this->getActiveWalletKeypairs();
@@ -190,7 +191,7 @@ class AWallet
 
     public function acceptPendingTransaction(
         string $druid,
-    ) {
+    ): array {
         try {
             return $this->client->acceptPendingTransaction(
                 druid: $druid,
