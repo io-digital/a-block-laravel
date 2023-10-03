@@ -21,7 +21,7 @@ class ABlockServiceProvider extends ServiceProvider
             );
         });
 
-        $this->app->bind('AWallet', function () {
+        $this->app->bind('a-wallet', function () {
             return new AWallet(
                 client: $this->app->make(ABlockClient::class)
             );
@@ -37,5 +37,11 @@ class ABlockServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(
             __DIR__.'/../../database/migrations'
         );
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                // InstallCommand::class,
+            ]);
+        }
     }
 }

@@ -10,6 +10,7 @@ return new class () extends Migration {
         Schema::create('a_block_wallets', function (Blueprint $table) {
             $table->id();
             $table->morphs('owner');
+            $table->boolean('default')->default(true);
             $table->string('name');
             $table->string('master_key_encrypted_base64');
             $table->string('nonce_hex');
