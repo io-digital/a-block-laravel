@@ -202,6 +202,19 @@ class AWallet
         }
     }
 
+    public function rejectPendingTrasaction(
+        string $druid
+    ): array {
+        try {
+            return $this->client->rejectPendingTransaction(
+                druid: $druid,
+                keypairs: $this->getActiveWalletKeypairs(),
+            );
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     public function getTokenObject(int $amount): PaymentAssetDTO
     {
         return new PaymentAssetDTO(
