@@ -28,11 +28,19 @@ class AWallet
     }
 
     public function create(
+        Model $owner,
         string $name,
         string $passPhrase,
-        Model $owner
     ): array {
         try {
+            if(!$name) {
+                throw new Exception('Name cannot be empty');
+            }
+
+            if(!$passPhrase) {
+                throw new Exception('Passphrase cannot be empty');
+            }
+
             $this->setPassPhrase($passPhrase);
             $walletDTO = $this->client->createWallet();
 
@@ -80,6 +88,9 @@ class AWallet
     public function createKeypair(string $name): ABlockKeypair
     {
         try {
+            if(!$name) {
+                throw new Exception('Keypair name cannot be empty');
+            }
             $encryptedKeypairDTO = $this->client->createKeypair($this->getAddressList());
 
             return $this->activeWallet->keypairs()->create([
@@ -88,6 +99,8 @@ class AWallet
                 'save'    => $encryptedKeypairDTO->getContent(),
                 'address' => $encryptedKeypairDTO->getAddress(),
             ]);
+        } catch (UniqueConstraintViolationException $e) {
+            throw new NameNotUniqueException();
         } catch (\Exception $e) {
             throw $e;
         }
@@ -172,7 +185,7 @@ class AWallet
             $keypairs = $this->getActiveWalletKeypairs();
             $pendingTransactions = $this->activeWallet->transactions()->get();
 
-            $encryptedTransactionMap = $pendingTransactions->mapWithKeys(fn ($item) => [
+            $encryptedTransactionMap = $pendingTransactions->mapWithKeys(fn($item) => [
                 $item->druid => [
                     'save' => $item->content,
                     'nonce' => $item->nonce,
@@ -236,14 +249,14 @@ class AWallet
     private function getAddressList(): array
     {
         return $this->activeWallet->keypairs()->get()
-        ->map(fn ($item) => $item->address)
+        ->map(fn($item) => $item->address)
         ->unique()
         ->toArray();
     }
 
     private function getActiveWalletKeypairs(): array
     {
-        return $this->activeWallet->keypairs->mapWithKeys(fn ($item) => [$item->address => [
+        return $this->activeWallet->keypairs->mapWithKeys(fn($item) => [$item->address => [
             'encryptedKey' => $item->save,
             'nonce' => $item->nonce
         ]])->toArray();

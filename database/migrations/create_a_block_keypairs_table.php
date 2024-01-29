@@ -16,6 +16,8 @@ return new class () extends Migration {
             $table->string('address');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['a_block_wallet_id', 'name']);
         });
     }
 };

@@ -1,6 +1,7 @@
 {
     "name": "io-digital/a-block-laravel",
     "description": "A Laravel wrapper for io-digital/a-block-php",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "IODigital\\ABlockLaravel\\": "src/"

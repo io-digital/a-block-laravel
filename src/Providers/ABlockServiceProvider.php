@@ -6,6 +6,8 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use IODigital\ABlockPHP\ABlockClient;
 use IODigital\ABlockLaravel\AWallet;
+use IODigital\ABlockLaravel\Console\Commands\CreateWalletForUser;
+use IODigital\ABlockLaravel\Console\Commands\CreateKeypairForWallet;
 
 class ABlockServiceProvider extends ServiceProvider
 {
@@ -31,16 +33,17 @@ class ABlockServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes([
-            __DIR__.'/../../config/a-block.php' => config_path('a-block.php'),
+            __DIR__ . '/../../config/a-block.php' => config_path('a-block.php'),
         ], 'a-block-config');
 
         $this->loadMigrationsFrom(
-            __DIR__.'/../../database/migrations'
+            __DIR__ . '/../../database/migrations'
         );
 
         if ($this->app->runningInConsole()) {
             $this->commands([
-                // InstallCommand::class,
+                CreateWalletForUser::class,
+                CreateKeypairForWallet::class
             ]);
         }
     }
