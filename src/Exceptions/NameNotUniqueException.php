@@ -3,22 +3,10 @@
 namespace IODigital\ABlockLaravel\Exceptions;
 
 use Illuminate\Http\Response;
-use IODigital\ABlockPHP\Exceptions\ApplicationException;
+use Exception;
 
-class NameNotUniqueException extends ApplicationException
+class NameNotUniqueException extends Exception
 {
-    public function status(): int
-    {
-        return Response::HTTP_BAD_REQUEST;
-    }
-
-    public function help(): string
-    {
-        return 'Please use a unique name';
-    }
-
-    public function error(): string
-    {
-        return 'Name is not unique for this entity for this owner';
-    }
+    protected $code = Response::HTTP_BAD_REQUEST;
+    protected $message = 'Name is not unique for this entity for this owner';
 }

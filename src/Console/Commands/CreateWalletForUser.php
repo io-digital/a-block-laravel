@@ -2,15 +2,16 @@
 
 namespace IODigital\ABlockLaravel\Console\Commands;
 
-use App\Models\User;
-use Illuminate\Console\Command;
 use AWallet;
-use IODigital\ABlockPHP\Exceptions\PassPhraseNotSetException;
-use IODigital\ABlockPHP\Exceptions\NameNotUniqueException;
 use Exception;
+use Illuminate\Console\Command;
+use IODigital\ABlockLaravel\Console\Traits\UserWallets;
+use IODigital\ABlockPHP\Exceptions\NameNotUniqueException;
+use IODigital\ABlockPHP\Exceptions\PassPhraseNotSetException;
 
 class CreateWalletForUser extends Command
 {
+    use UserWallets;
     /**
      * The name and signature of the console command.
      *
@@ -30,26 +31,12 @@ class CreateWalletForUser extends Command
      */
     public function handle()
     {
-        do {
-            $email = $this->ask("What is the user's email address?", 'bob@test.com');
-            $user = User::where('email', $email)->first();
-
-            if(!$user) {
-                $this->error('User not found, please try again');
-            }
-        } while (!!$user === false);
-
-        $walletAndSeedPhrase = null;
+        $user = $this->findUserByEmail();
 
         do {
             try {
-                if(!isset($name) || !$name) {
-                    $name = $this->ask('Please enter a name for your wallet', '');
-                }
-
-                if(!isset($passPhrase) || !$passPhrase) {
-                    $passPhrase = $this->ask('Please enter a pass phrase for your wallet', '');
-                }
+                $name = $this->promptForNonEmptyString('Please enter a name for your wallet');
+                $passPhrase = $this->promptForNonEmptyString('Please enter a pass phrase for the wallet');
 
                 $walletAndSeedPhrase = AWallet::create(
                     name: $name,
@@ -65,9 +52,14 @@ class CreateWalletForUser extends Command
             }
         } while (!!$walletAndSeedPhrase === false);
 
-        //also create a keypair for this wallet
-        $keyPair = AWallet::createKeypair("$name Keypair");
+        if ($this->confirm('Do you wish to create a default keypair for this wallet?', 'yes')) {
+            $keyPair = AWallet::createKeypair("default");
+        }
 
         $this->line("{$walletAndSeedPhrase['wallet']->name} seed phrase: {$walletAndSeedPhrase['seedPhrase']}");
+
+        if(isset($keyPair)) {
+            $this->line("Default keypair created");
+        }
     }
 }

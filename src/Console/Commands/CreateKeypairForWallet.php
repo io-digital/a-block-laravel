@@ -2,15 +2,15 @@
 
 namespace IODigital\ABlockLaravel\Console\Commands;
 
-use App\Models\User;
-use Illuminate\Console\Command;
 use AWallet;
-use IODigital\ABlockPHP\Exceptions\PassPhraseNotSetException;
-use IODigital\ABlockPHP\Exceptions\NameNotUniqueException;
 use Exception;
+use Illuminate\Console\Command;
+use IODigital\ABlockLaravel\Console\Traits\UserWallets;
+use IODigital\ABlockPHP\Exceptions\NameNotUniqueException;
 
 class CreateKeypairForWallet extends Command
 {
+    use UserWallets;
     /**
      * The name and signature of the console command.
      *
@@ -30,47 +30,28 @@ class CreateKeypairForWallet extends Command
      */
     public function handle()
     {
-        do {
-            $email = $this->ask("What is the user's email address?", 'bob@test.com');
-            $user = User::where('email', $email)->first();
+        $user = $this->findUserByEmail();
 
-            if(!$user) {
-                $this->error('User not found, please try again');
-            }
-        } while (!!$user === false);
-
-        $wallets = $user->aBlockWallets()->orderBy('default', 'DESC')->get();
-
-        if(!$wallets->count()) {
-            $this->error('User does not have a wallet');
+        try {
+            $wallet = $this->walletSelect($user);
+        } catch (Exception $e) {
+            $this->error($e->getMessage());
             return;
         }
 
-        $walletName = $this->choice(
-            'Which wallet is this keypair for?',
-            $wallets->map(fn($item) => $item->name)->toArray(),
-            0,
-            $maxAttempts = null,
-            $allowMultipleSelections = false
-        );
-
-        $wallet = $wallets->where('name', $walletName)->first();
-        $keyPair = null;
+        $this->openUserWallet($wallet);
 
         do {
             try {
-                if(!isset($name) || !$name) {
-                    $name = $this->ask('Please enter a name for your wallet', '');
-                }
-
+                $name = $this->promptForNonEmptyString('Please enter a name for this keypair');
                 $keyPair = AWallet::createKeypair($name);
             } catch (NameNotUniqueException $e) {
                 $this->error('There is already a keypair for this wallet with that name');
             } catch (Exception $e) {
                 $this->error($e->getMessage());
             }
-        } while (!!$keyPair === false);
+        } while (!isset($keyPair) || !!$keyPair === false);
 
-        $this->line("Keypair '$name' created for wallet '$walletName'");
+        $this->line("Keypair '$name' created for wallet '{$wallet->name}'");
     }
 }

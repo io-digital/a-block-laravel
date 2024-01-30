@@ -246,6 +246,11 @@ class AWallet
         );
     }
 
+    public function getActiveWallet(): ABlockWallet|null
+    {
+        return $this->activeWallet;
+    }
+
     private function getAddressList(): array
     {
         return $this->activeWallet->keypairs()->get()

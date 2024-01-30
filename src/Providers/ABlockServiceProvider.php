@@ -8,6 +8,7 @@ use IODigital\ABlockPHP\ABlockClient;
 use IODigital\ABlockLaravel\AWallet;
 use IODigital\ABlockLaravel\Console\Commands\CreateWalletForUser;
 use IODigital\ABlockLaravel\Console\Commands\CreateKeypairForWallet;
+use IODigital\ABlockLaravel\Console\Commands\CreateItem;
 
 class ABlockServiceProvider extends ServiceProvider
 {
@@ -43,7 +44,8 @@ class ABlockServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 CreateWalletForUser::class,
-                CreateKeypairForWallet::class
+                CreateKeypairForWallet::class,
+                CreateItem::class
             ]);
         }
     }
