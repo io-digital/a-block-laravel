@@ -30,16 +30,7 @@ class CreateKeypairForWallet extends Command
      */
     public function handle()
     {
-        $user = $this->findUserByEmail();
-
-        try {
-            $wallet = $this->walletSelect($user);
-        } catch (Exception $e) {
-            $this->error($e->getMessage());
-            return;
-        }
-
-        $this->openUserWallet($wallet);
+        $wallet = $this->openWallet();
 
         do {
             try {

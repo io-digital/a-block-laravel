@@ -13,20 +13,6 @@ use Exception;
 
 trait UserWallets
 {
-    public function findUserByEmail(): User
-    {
-        do {
-            $email = $this->ask("What is the user's email address?", 'bob@test.com');
-            $user = User::where('email', $email)->first();
-
-            if (!$user) {
-                $this->error('User not found, please try again');
-            }
-        } while (!!$user === false);
-
-        return $user;
-    }
-
     public function promptForNonEmptyString(string $question, string $default = null): string
     {
         do {
@@ -39,7 +25,77 @@ trait UserWallets
         return $string;
     }
 
-    public function walletSelect(User $user): ABlockWallet
+    public function openWallet(string $question = null): ABlockWallet
+    {
+        $user = $this->findUserByEmail($question);
+
+        try {
+            $wallet = $this->walletSelect($user);
+        } catch (Exception $e) {
+            $this->error($e->getMessage());
+            return null;
+        }
+
+        $this->openUserWallet($wallet);
+        return $wallet;
+    }
+
+    public function assetsSelect(): array
+    {
+        $balance = AWallet::fetchBalance();
+        $assets = collect(['tokens' => $balance['total']['tokens']]);
+
+        foreach($balance['total']['receipts'] as $name => $qty) {
+            $assets->put($name, $qty);
+        }
+
+        $assetName = $this->choice(
+            'Please select assets to send',
+            $assets->keys()->toArray(),
+            0,
+            $maxAttempts = null,
+            $allowMultipleSelections = false
+        );
+
+        // stuff commented out here as I'd like to be able to select and trade multiple assets
+        // $return = [];
+
+        // foreach($assetNames as $assetName) {
+        $qtyAvailable = $assets[$assetName];
+
+        do {
+            $qtyToSend = $this->ask("How many '$assetName' are you sending (you have $qtyAvailable available)?");
+
+            if(is_numeric($qtyToSend) && is_integer((int) $qtyToSend) && $qtyToSend <= $qtyAvailable) {
+                //$return[$assetName] = (int) $qtyToSend;
+                return [
+                    'name' => $assetName,
+                    'qty' => (int) $qtyToSend
+                ];
+            } else {
+                $this->error("Please enter an integer less than or equal to the available number");
+            }
+        } while (!array_key_exists($assetName, $return));
+        // }
+
+        // return $return;
+    }
+
+    private function findUserByEmail(string $question = null): User
+    {
+        do {
+            $email = $this->promptForNonEmptyString($question ?? "What is the user's email address?");
+            $user = User::where('email', $email)->first();
+
+            if (!$user) {
+                $this->error('User not found, please try again');
+            }
+        } while (!!$user === false);
+
+        return $user;
+    }
+
+    private function walletSelect(User $user): ABlockWallet
     {
         $wallets = $user->aBlockWallets()->orderBy('default', 'DESC')->get();
 
@@ -48,7 +104,7 @@ trait UserWallets
         }
 
         $walletName = $this->choice(
-            'Which wallet is this keypair for?',
+            'Which wallet are we opening?',
             $wallets->map(fn($item) => $item->name)->toArray(),
             0,
             $maxAttempts = null,
@@ -77,18 +133,16 @@ trait UserWallets
         return $keypairs->where('name', $keypairName)->first();
     }
 
-    public function openUserWallet(ABlockWallet $wallet)
+    private function openUserWallet(ABlockWallet $wallet)
     {
-        $walletOpened = false;
-
         do {
-            $passPhrase = $this->promptForNonEmptyString('Please enter the pass phrase for this wallet', 'pass');
+            $passPhrase = $this->promptForNonEmptyString('Please enter the pass phrase for this wallet', 'passphrase');
 
             try {
                 $walletOpened = AWallet::setActive($wallet, $passPhrase);
             } catch (Exception $e) {
                 $this->error("Could not open this wallet");
             }
-        } while (!$walletOpened);
+        } while (!isset($walletOpened));
     }
 }

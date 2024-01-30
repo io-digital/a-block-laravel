@@ -25,23 +25,14 @@ class CreateItem extends Command
      *
      * @var string
      */
-    protected $description = 'This is a command that creates a wallet for an existing user';
+    protected $description = 'This is a command that creates an item in a user wallet';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $user = $this->findUserByEmail();
-
-        try {
-            $wallet = $this->walletSelect($user);
-        } catch (Exception $e) {
-            $this->error($e->getMessage());
-            return;
-        }
-
-        $this->openUserWallet($wallet);
+        $wallet = $this->openWallet();
         $keyPair = $this->keypairSelect($wallet);
 
         $itemName = $this->promptForNonEmptyString("What is the item?", "stuff");

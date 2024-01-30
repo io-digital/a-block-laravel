@@ -35,8 +35,8 @@ class CreateWalletForUser extends Command
 
         do {
             try {
-                $name = $this->promptForNonEmptyString('Please enter a name for your wallet');
-                $passPhrase = $this->promptForNonEmptyString('Please enter a pass phrase for the wallet');
+                $name = $this->promptForNonEmptyString('Please enter a name for your wallet', 'default');
+                $passPhrase = $this->promptForNonEmptyString('Please enter a pass phrase for the wallet', 'passphrase');
 
                 $walletAndSeedPhrase = AWallet::create(
                     name: $name,
@@ -52,14 +52,11 @@ class CreateWalletForUser extends Command
             }
         } while (!!$walletAndSeedPhrase === false);
 
-        if ($this->confirm('Do you wish to create a default keypair for this wallet?', 'yes')) {
-            $keyPair = AWallet::createKeypair("default");
-        }
-
         $this->line("{$walletAndSeedPhrase['wallet']->name} seed phrase: {$walletAndSeedPhrase['seedPhrase']}");
 
-        if(isset($keyPair)) {
-            $this->line("Default keypair created");
+        if ($this->confirm('Do you wish to create a default keypair for this wallet?', 'yes')) {
+            $keyPair = AWallet::createKeypair("default");
+            $this->line("Keypair created with address: {$keyPair->address}");
         }
     }
 }

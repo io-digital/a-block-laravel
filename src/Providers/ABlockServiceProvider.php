@@ -9,6 +9,9 @@ use IODigital\ABlockLaravel\AWallet;
 use IODigital\ABlockLaravel\Console\Commands\CreateWalletForUser;
 use IODigital\ABlockLaravel\Console\Commands\CreateKeypairForWallet;
 use IODigital\ABlockLaravel\Console\Commands\CreateItem;
+use IODigital\ABlockLaravel\Console\Commands\CheckBalance;
+use IODigital\ABlockLaravel\Console\Commands\SendItemToAddress;
+use IODigital\ABlockLaravel\Console\Commands\CreateTradeRequest;
 
 class ABlockServiceProvider extends ServiceProvider
 {
@@ -45,7 +48,10 @@ class ABlockServiceProvider extends ServiceProvider
             $this->commands([
                 CreateWalletForUser::class,
                 CreateKeypairForWallet::class,
-                CreateItem::class
+                CreateItem::class,
+                CheckBalance::class,
+                SendItemToAddress::class,
+                CreateTradeRequest::class
             ]);
         }
     }
