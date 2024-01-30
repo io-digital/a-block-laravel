@@ -12,6 +12,9 @@ use IODigital\ABlockLaravel\Console\Commands\CreateItem;
 use IODigital\ABlockLaravel\Console\Commands\CheckBalance;
 use IODigital\ABlockLaravel\Console\Commands\SendItemToAddress;
 use IODigital\ABlockLaravel\Console\Commands\CreateTradeRequest;
+use IODigital\ABlockLaravel\Console\Commands\GetPendingTransactions;
+use IODigital\ABlockLaravel\Console\Commands\AcceptPendingTransaction;
+use IODigital\ABlockLaravel\Console\Commands\CommandApp;
 
 class ABlockServiceProvider extends ServiceProvider
 {
@@ -51,7 +54,10 @@ class ABlockServiceProvider extends ServiceProvider
                 CreateItem::class,
                 CheckBalance::class,
                 SendItemToAddress::class,
-                CreateTradeRequest::class
+                CreateTradeRequest::class,
+                GetPendingTransactions::class,
+                AcceptPendingTransaction::class,
+                CommandApp::class
             ]);
         }
     }

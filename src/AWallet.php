@@ -16,7 +16,7 @@ use Exception;
 
 class AWallet
 {
-    private ABlockWallet $activeWallet;
+    private ?ABlockWallet $activeWallet;
 
     public function __construct(
         private ABlockClient $client
@@ -248,7 +248,7 @@ class AWallet
 
     public function getActiveWallet(): ABlockWallet|null
     {
-        return $this->activeWallet;
+        return $this->activeWallet ?? null;
     }
 
     private function getAddressList(): array

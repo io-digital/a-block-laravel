@@ -27,17 +27,20 @@ trait UserWallets
 
     public function openWallet(string $question = null): ABlockWallet
     {
-        $user = $this->findUserByEmail($question);
+        if(!AWallet::getActiveWallet()) {
+            $user = $this->findUserByEmail($question);
 
-        try {
-            $wallet = $this->walletSelect($user);
-        } catch (Exception $e) {
-            $this->error($e->getMessage());
-            return null;
+            try {
+                $wallet = $this->walletSelect($user);
+            } catch (Exception $e) {
+                $this->error($e->getMessage());
+                return null;
+            }
+
+            $this->openUserWallet($wallet);
         }
 
-        $this->openUserWallet($wallet);
-        return $wallet;
+        return AWallet::getActiveWallet();
     }
 
     public function assetsSelect(): array
@@ -84,7 +87,7 @@ trait UserWallets
     private function findUserByEmail(string $question = null): User
     {
         do {
-            $email = $this->promptForNonEmptyString($question ?? "What is the user's email address?");
+            $email = $this->promptForNonEmptyString($question ?? "What is the user's email address?", 'bob@test.com');
             $user = User::where('email', $email)->first();
 
             if (!$user) {

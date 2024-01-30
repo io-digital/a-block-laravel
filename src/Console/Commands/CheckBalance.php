@@ -34,27 +34,7 @@ class CheckBalance extends Command
     {
         $wallet = $this->openWallet();
         $balance = AWallet::fetchBalance();
-        dd($balance);
-        // $keyPair = $this->keypairSelect($wallet);
 
-        // $itemName = $this->promptForNonEmptyString("What is the item?", "stuff");
-
-        // do {
-        //     $qtyResponse = $this->promptForNonEmptyString("How many items?");
-
-        //     if(is_numeric($qtyResponse) && is_integer((int) $qtyResponse) && $qtyResponse > 0) {
-        //         $qty = (int) $qtyResponse;
-        //     } else {
-        //         $this->error("Please enter an integer number larger than 0");
-        //     }
-        // } while (!isset($qty));
-
-        // $item = AWallet::createAsset(
-        //     keyPair: $keyPair,
-        //     name: $itemName,
-        //     amount: $qty
-        // );
-
-        // $this->line("$qty items named '$itemName' created, unique hash: {$item->getDrsTxHash()}");
+        dump($balance);
     }
 }

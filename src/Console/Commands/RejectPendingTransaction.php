@@ -10,7 +10,7 @@ use IODigital\ABlockPHP\Exceptions\NameNotUniqueException;
 use Exception;
 use IODigital\ABlockLaravel\Console\Traits\UserWallets;
 
-class SendItemToAddress extends Command
+class RejectPendingTransaction extends Command
 {
     use UserWallets;
     /**
@@ -18,14 +18,14 @@ class SendItemToAddress extends Command
      *
      * @var string
      */
-    protected $signature = 'ablock:send-item-to-address';
+    protected $signature = 'ablock:accept-pending-transaction';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'This is a command that creates a wallet for an existing user';
+    protected $description = 'This is a command rejects a pending trade request, from the receiver side';
 
     /**
      * Execute the console command.
@@ -33,18 +33,12 @@ class SendItemToAddress extends Command
     public function handle()
     {
         $this->openWallet();
-        $selectedAssets = $this->assetsSelect();
-        $addressToSendTo = $this->promptForNonEmptyString("To which address do you want to send this?");
+        $druid = $qtyResponse = $this->promptForNonEmptyString("What is the DRUID reference to the transaction?");
 
-        $rs = AWallet::sendAssetToAddress(
-            address: $addressToSendTo,
-            asset: AWallet::getAssetObject(
-                amount: $selectedAssets['qty'],
-                hash: $selectedAssets['name'],
-                metaData: null
-            ),
+        $result = AWallet::rejectPendingTrasaction(
+            druid: $druid,
         );
 
-        dump($rs);
+        dd($result);
     }
 }

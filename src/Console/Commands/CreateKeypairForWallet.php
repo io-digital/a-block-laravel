@@ -43,6 +43,6 @@ class CreateKeypairForWallet extends Command
             }
         } while (!isset($keyPair) || !!$keyPair === false);
 
-        $this->line("Keypair '$name' created for wallet '{$wallet->name}'");
+        $this->line("Keypair '$name' created for wallet '{$wallet->name}' with address: {$keyPair->address}");
     }
 }
