@@ -28,6 +28,7 @@ class ABlockServiceProvider extends ServiceProvider
             return new ABlockClient(
                 computeHost: config('a-block.compute_host'),
                 intercomHost: config('a-block.intercom_host'),
+                storageHost: config('a-block.storage_host'),
             );
         });
 

@@ -38,6 +38,7 @@ class CommandApp extends Command
     public const COMMAND_MAKE_TRADE_REQUEST = 'Make Trade Request';
     public const COMMAND_ACCEPT_PENDING_TRANSACTION = 'Accept Pending Transaction';
     public const COMMAND_REJECT_PENDING_TRANSACTION = 'Reject Pending Transaction';
+    public const COMMAND_GET_BLOCKCHAIN_ENTRY = 'Get Blockchain Entry';
     public const COMMAND_GO_BACK = '<<< Go Back';
 
     /**
@@ -53,8 +54,9 @@ class CommandApp extends Command
                     self::COMMAND_GO_BACK,
                     self::COMMAND_OPEN_WALLET,
                     self::COMMAND_CREATE_WALLET,
+                    self::COMMAND_GET_BLOCKCHAIN_ENTRY
                 ],
-                self::COMMAND_OPEN_WALLET,
+                self::COMMAND_GET_BLOCKCHAIN_ENTRY,
             );
 
             switch($action) {
@@ -67,10 +69,17 @@ class CommandApp extends Command
                 case self::COMMAND_GO_BACK:
                     $this->line("Bye!");
                     break(2);
+                case self::COMMAND_GET_BLOCKCHAIN_ENTRY:
+                    $hash = $this->ask("Enter the hash", "gb78787ce2fe60c810f2eb9a5ec97177");
+                    $this->getBlockchainEntry($hash);
+                    break;
                 default:
             }
 
             $wallet = AWallet::getActiveWallet();
+            if(!$wallet) {
+                continue;
+            }
 
             while (true) {
                 $this->newLine();
@@ -87,7 +96,8 @@ class CommandApp extends Command
                         self::COMMAND_GET_PENDING_TRANSACTIONS,
                         self::COMMAND_MAKE_TRADE_REQUEST,
                         self::COMMAND_ACCEPT_PENDING_TRANSACTION,
-                        self::COMMAND_REJECT_PENDING_TRANSACTION
+                        self::COMMAND_REJECT_PENDING_TRANSACTION,
+                        self::COMMAND_GET_BLOCKCHAIN_ENTRY
                     ],
                     null,
                     $maxAttempts = null,
@@ -132,11 +142,29 @@ class CommandApp extends Command
                     case self::COMMAND_REJECT_PENDING_TRANSACTION:
                         $this->call('ablock:reject-pending-transaction');
                         break;
+                    case self::COMMAND_GET_BLOCKCHAIN_ENTRY:
+                        $hash = $this->ask("Enter the hash");
+                        $this->getBlockchainEntry($hash);
+                        break;
                     default:
                 }
 
                 $this->line("---------------------------------------------------------------------------------------------------------");
             }
         }
+    }
+
+    private function getBlockchainEntry(string $hash)
+    {
+        try {
+            $result = AWallet::getBlockchainEntry($hash);
+
+            foreach($result['content']['Transaction']['outputs'] as $output) {
+                dump($output['value']);
+            }
+        } catch (Exception $e) {
+            $this->error($e->getMessage());
+        }
+
     }
 }

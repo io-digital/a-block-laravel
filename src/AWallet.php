@@ -106,6 +106,15 @@ class AWallet
         }
     }
 
+    public function getBlockchainEntry(string $hash): array
+    {
+        try {
+            return $this->client->getBlockchainEntry($hash);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
     public function fetchBalance(?array $addresses = null): array
     {
         try {

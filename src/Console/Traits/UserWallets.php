@@ -25,7 +25,7 @@ trait UserWallets
         return $string;
     }
 
-    public function openWallet(string $question = null, bool $closeExisting = false): ABlockWallet
+    public function openWallet(string $question = null, bool $closeExisting = false): ?ABlockWallet
     {
         if($closeExisting === true || !AWallet::getActiveWallet()) {
             $user = $this->findUserByEmail($question);
