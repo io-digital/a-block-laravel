@@ -87,7 +87,7 @@ trait UserWallets
     private function findUserByEmail(string $question = null): User
     {
         do {
-            $email = $this->promptForNonEmptyString($question ?? "What is the user's email address?", 'bob@test.com');
+            $email = $this->promptForNonEmptyString($question ?? "What is the user's email address?");
             $user = User::where('email', $email)->first();
 
             if (!$user) {

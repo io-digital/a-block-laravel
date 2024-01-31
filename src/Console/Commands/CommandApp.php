@@ -56,7 +56,7 @@ class CommandApp extends Command
                     self::COMMAND_CREATE_WALLET,
                     self::COMMAND_GET_BLOCKCHAIN_ENTRY
                 ],
-                self::COMMAND_GET_BLOCKCHAIN_ENTRY,
+                self::COMMAND_OPEN_WALLET,
             );
 
             switch($action) {
@@ -70,7 +70,7 @@ class CommandApp extends Command
                     $this->line("Bye!");
                     break(2);
                 case self::COMMAND_GET_BLOCKCHAIN_ENTRY:
-                    $hash = $this->ask("Enter the hash", "gb78787ce2fe60c810f2eb9a5ec97177");
+                    $hash = $this->ask("Enter the hash");
                     $this->getBlockchainEntry($hash);
                     break;
                 default:
