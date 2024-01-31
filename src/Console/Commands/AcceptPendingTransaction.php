@@ -39,6 +39,6 @@ class AcceptPendingTransaction extends Command
             druid: $druid,
         );
 
-        dd($result);
+        dump($result);
     }
 }

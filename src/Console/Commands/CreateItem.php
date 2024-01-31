@@ -33,7 +33,7 @@ class CreateItem extends Command
     public function handle()
     {
         $wallet = $this->openWallet();
-        $keyPair = $this->keypairSelect($wallet);
+        $keyPair = $this->keypairSelect(wallet: $wallet);
 
         $itemName = $this->promptForNonEmptyString("What is the item?", "stuff");
 

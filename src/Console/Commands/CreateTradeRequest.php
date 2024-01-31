@@ -32,9 +32,12 @@ class CreateTradeRequest extends Command
      */
     public function handle()
     {
-        $senderWallet = $this->openWallet("Email address of initiator?");
+        $senderWallet = $this->openWallet(question: "Email address of initiator?");
         $selectedAssetsToSend = $this->assetsSelect();
-        $myAddress = $this->keypairSelect($senderWallet)->address;
+        $myAddress = $this->keypairSelect(
+            question: "Which address do you want to receive the assets in?",
+            wallet: $senderWallet
+        )->address;
 
         $otherPartyAddress = $this->promptForNonEmptyString("What is the address to send your assets to?");
         $receiveHash = $this->promptForNonEmptyString("What is the hash of the asset you wish to recieve?");
@@ -52,5 +55,7 @@ class CreateTradeRequest extends Command
                 hash: $receiveHash,
             )
         );
+
+        dump($transaction);
     }
 }

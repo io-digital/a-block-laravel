@@ -34,6 +34,10 @@ class CommandApp extends Command
     public const COMMAND_SHOW_KEYPAIRS = 'Show All Keypairs';
     public const COMMAND_CREATE_ITEM = 'Create Item';
     public const COMMAND_SEND_ITEM = 'Send Item';
+    public const COMMAND_GET_PENDING_TRANSACTIONS = 'Get Pending Transactions';
+    public const COMMAND_MAKE_TRADE_REQUEST = 'Make Trade Request';
+    public const COMMAND_ACCEPT_PENDING_TRANSACTION = 'Accept Pending Transaction';
+    public const COMMAND_REJECT_PENDING_TRANSACTION = 'Reject Pending Transaction';
     public const COMMAND_GO_BACK = '<<< Go Back';
 
     /**
@@ -55,7 +59,7 @@ class CommandApp extends Command
 
             switch($action) {
                 case self::COMMAND_OPEN_WALLET:
-                    $this->openWallet();
+                    $this->openWallet(closeExisting: true);
                     break;
                 case self::COMMAND_CREATE_WALLET:
                     $this->call('ablock:create-wallet-for-user');
@@ -80,6 +84,10 @@ class CommandApp extends Command
                         self::COMMAND_CREATE_KEYPAIR,
                         self::COMMAND_CREATE_ITEM,
                         self::COMMAND_SEND_ITEM,
+                        self::COMMAND_GET_PENDING_TRANSACTIONS,
+                        self::COMMAND_MAKE_TRADE_REQUEST,
+                        self::COMMAND_ACCEPT_PENDING_TRANSACTION,
+                        self::COMMAND_REJECT_PENDING_TRANSACTION
                     ],
                     null,
                     $maxAttempts = null,
@@ -112,8 +120,22 @@ class CommandApp extends Command
                     case self::COMMAND_SEND_ITEM:
                         $this->call('ablock:send-item-to-address');
                         break;
+                    case self::COMMAND_GET_PENDING_TRANSACTIONS:
+                        $this->call('ablock:get-pending-transactions');
+                        break;
+                    case self::COMMAND_MAKE_TRADE_REQUEST:
+                        $this->call('ablock:create-trade-request');
+                        break;
+                    case self::COMMAND_ACCEPT_PENDING_TRANSACTION:
+                        $this->call('ablock:accept-pending-transaction');
+                        break;
+                    case self::COMMAND_REJECT_PENDING_TRANSACTION:
+                        $this->call('ablock:reject-pending-transaction');
+                        break;
                     default:
                 }
+
+                $this->line("---------------------------------------------------------------------------------------------------------");
             }
         }
     }

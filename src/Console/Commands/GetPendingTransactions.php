@@ -34,6 +34,6 @@ class GetPendingTransactions extends Command
     {
         $this->openWallet();
         $transactions = AWallet::getPendingTransactions();
-        dd($transactions);
+        dump($transactions);
     }
 }

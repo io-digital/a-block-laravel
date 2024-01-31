@@ -25,9 +25,9 @@ trait UserWallets
         return $string;
     }
 
-    public function openWallet(string $question = null): ABlockWallet
+    public function openWallet(string $question = null, bool $closeExisting = false): ABlockWallet
     {
-        if(!AWallet::getActiveWallet()) {
+        if($closeExisting === true || !AWallet::getActiveWallet()) {
             $user = $this->findUserByEmail($question);
 
             try {
@@ -117,7 +117,7 @@ trait UserWallets
         return $wallets->where('name', $walletName)->first();
     }
 
-    public function keypairSelect(ABlockWallet $wallet): ABlockKeypair
+    public function keypairSelect(ABlockWallet $wallet, string $question = null): ABlockKeypair
     {
         $keypairs = $wallet->keypairs()->orderBy('created_at', 'DESC')->get();
 
@@ -126,7 +126,7 @@ trait UserWallets
         }
 
         $keypairName = $this->choice(
-            'Which keypair is this item for?',
+            $question ?? 'Which keypair is this item for?',
             $keypairs->map(fn($item) => $item->name)->toArray(),
             0,
             $maxAttempts = null,

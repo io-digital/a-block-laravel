@@ -18,7 +18,7 @@ class RejectPendingTransaction extends Command
      *
      * @var string
      */
-    protected $signature = 'ablock:accept-pending-transaction';
+    protected $signature = 'ablock:reject-pending-transaction';
 
     /**
      * The console command description.
@@ -39,6 +39,6 @@ class RejectPendingTransaction extends Command
             druid: $druid,
         );
 
-        dd($result);
+        dump($result);
     }
 }

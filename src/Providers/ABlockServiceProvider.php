@@ -15,6 +15,7 @@ use IODigital\ABlockLaravel\Console\Commands\CreateTradeRequest;
 use IODigital\ABlockLaravel\Console\Commands\GetPendingTransactions;
 use IODigital\ABlockLaravel\Console\Commands\AcceptPendingTransaction;
 use IODigital\ABlockLaravel\Console\Commands\CommandApp;
+use IODigital\ABlockLaravel\Console\Commands\RejectPendingTransaction;
 
 class ABlockServiceProvider extends ServiceProvider
 {
@@ -57,7 +58,8 @@ class ABlockServiceProvider extends ServiceProvider
                 CreateTradeRequest::class,
                 GetPendingTransactions::class,
                 AcceptPendingTransaction::class,
-                CommandApp::class
+                CommandApp::class,
+                RejectPendingTransaction::class
             ]);
         }
     }
