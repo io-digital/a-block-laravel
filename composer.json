@@ -1,7 +1,13 @@
 {
     "name": "io-digital/a-block-laravel",
     "description": "A Laravel wrapper for io-digital/a-block-php",
+    "type": "library",
     "license": "MIT",
+    "keywords": [
+        "blockchain",
+        "ablock",
+        "laravel"
+    ],
     "autoload": {
         "psr-4": {
             "IODigital\\ABlockLaravel\\": "src/"
@@ -9,12 +15,14 @@
     },
     "authors": [
         {
-            "name": "Rian Zietsman"
+            "name": "Rian Zietsman",
+            "email": "rian@io.co.za",
+            "role": "developer"
         }
     ],
     "require": {
         "php": "^8.2",
-        "io-digital/a-block-php": "dev-main"
+        "io-digital/a-block-php": "^0.0.0"
     },
     "extra": {
         "laravel": {
@@ -25,7 +33,5 @@
                 "AWallet": "IODigital\\ABlockLaravel\\Facades\\AWalletFacade"
             }
         }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    }
 }
