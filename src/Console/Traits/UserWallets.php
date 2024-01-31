@@ -48,7 +48,7 @@ trait UserWallets
         $balance = AWallet::fetchBalance();
         $assets = collect(['tokens' => $balance['total']['tokens']]);
 
-        foreach($balance['total']['receipts'] as $name => $qty) {
+        foreach($balance['total']['items'] as $name => $qty) {
             $assets->put($name, $qty);
         }
 

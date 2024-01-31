@@ -250,7 +250,7 @@ class AWallet
         return new PaymentAssetDTO(
             amount: $amount,
             drsTxHash: $hash,
-            assetType: PaymentAssetDTO::ASSET_TYPE_RECEIPT,
+            assetType: PaymentAssetDTO::ASSET_TYPE_ITEM,
             metaData: $metaData
         );
     }
