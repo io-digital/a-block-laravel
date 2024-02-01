@@ -69,19 +69,19 @@ trait UserWallets
         do {
             $qtyToSend = $this->ask("How many '$assetName' are you sending (you have $qtyAvailable available)?");
 
-            if(is_numeric($qtyToSend) && is_integer((int) $qtyToSend) && $qtyToSend <= $qtyAvailable) {
+            if(is_numeric($qtyToSend) && is_integer((int) $qtyToSend) && $qtyToSend > 0 && $qtyToSend <= $qtyAvailable) {
                 //$return[$assetName] = (int) $qtyToSend;
-                return [
+                $return = [
                     'name' => $assetName,
                     'qty' => (int) $qtyToSend
                 ];
             } else {
                 $this->error("Please enter an integer less than or equal to the available number");
             }
-        } while (!array_key_exists($assetName, $return));
+        } while (!isset($return));
         // }
 
-        // return $return;
+        return $return;
     }
 
     private function findUserByEmail(string $question = null): User
