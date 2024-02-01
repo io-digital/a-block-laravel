@@ -13,3 +13,6 @@ A_BLOCK_INTERCOM_HOST=https://intercom.a-block.net
 Add this trait to any model that has wallets
 `use IODigital\ABlockLaravel\Traits\HasABlockWallets;`
 
+The step into DOS world and run 
+`php artisan ablock:command-app`
+
