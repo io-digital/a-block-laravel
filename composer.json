@@ -22,7 +22,7 @@
     ],
     "require": {
         "php": "^8.2",
-        "io-digital/a-block-php": "^0.0.1"
+        "io-digital/a-block-php": "^0.1.0"
     },
     "extra": {
         "laravel": {
