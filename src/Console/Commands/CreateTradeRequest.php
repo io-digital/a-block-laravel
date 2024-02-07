@@ -40,20 +40,26 @@ class CreateTradeRequest extends Command
         )->address;
 
         $otherPartyAddress = $this->promptForNonEmptyString("What is the address to send your assets to?");
-        $receiveHash = $this->promptForNonEmptyString("What is the hash of the asset you wish to recieve?");
-        $receiveQty = $this->promptForNonEmptyString("How many $receiveHash you wish to recieve?");
+        $receiveHash = $this->promptForNonEmptyString("What is the hash of the asset you wish to receive?", 'tokens');
+        $receiveQty = $this->promptForNonEmptyString("How many $receiveHash you wish to receive?");
+
+        $sendAsset = AWallet::getPaymentAssetObject(
+            amount: $selectedAssetsToSend['qty'],
+            hash: $selectedAssetsToSend['name'],
+            metaData: null
+        );
+
+        $receiveAsset = AWallet::getPaymentAssetObject(
+            amount: $receiveQty,
+            hash: $receiveHash,
+            metaData: null
+        );
 
         $transaction = AWallet::createTradeRequest(
             myAddress: $myAddress,
-            myAsset: AWallet::getAssetObject(
-                amount: $selectedAssetsToSend['qty'],
-                hash: $selectedAssetsToSend['name'],
-            ),
+            myAsset: $sendAsset,
             otherPartyAddress: $otherPartyAddress,
-            otherPartyAsset: AWallet::getAssetObject(
-                amount: $receiveQty,
-                hash: $receiveHash,
-            )
+            otherPartyAsset: $receiveAsset
         );
 
         dump($transaction);

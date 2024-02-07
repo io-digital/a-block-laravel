@@ -237,20 +237,11 @@ class AWallet
         }
     }
 
-    public function getTokenObject(int $amount): PaymentAssetDTO
+    public function getPaymentAssetObject(int $amount, ?string $hash = null, ?array $metaData = null): PaymentAssetDTO
     {
-        return new PaymentAssetDTO(
+        return $this->client->getPaymentAssetObject(
             amount: $amount,
-            assetType: PaymentAssetDTO::ASSET_TYPE_TOKEN
-        );
-    }
-
-    public function getAssetObject(int $amount, string $hash, ?array $metaData = null): PaymentAssetDTO
-    {
-        return new PaymentAssetDTO(
-            amount: $amount,
-            drsTxHash: $hash,
-            assetType: PaymentAssetDTO::ASSET_TYPE_ITEM,
+            hash: !$hash || $hash === 'tokens' ? null : $hash,
             metaData: $metaData
         );
     }
