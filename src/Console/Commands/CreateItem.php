@@ -35,7 +35,7 @@ class CreateItem extends Command
         $wallet = $this->openWallet();
         $keyPair = $this->keypairSelect(wallet: $wallet);
 
-        $itemName = $this->promptForNonEmptyString("What is the item?", "stuff");
+        $itemName = $this->promptForNonEmptyString("What is the item?");
 
         do {
             $qtyResponse = $this->promptForNonEmptyString("How many items?");

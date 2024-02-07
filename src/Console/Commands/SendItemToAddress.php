@@ -32,19 +32,23 @@ class SendItemToAddress extends Command
      */
     public function handle()
     {
-        $this->openWallet();
-        $selectedAssets = $this->assetsSelect();
-        $addressToSendTo = $this->promptForNonEmptyString("To which address do you want to send this?");
+        try {
+            $this->openWallet();
+            $selectedAssets = $this->assetsSelect();
+            $addressToSendTo = $this->promptForNonEmptyString("To which address do you want to send this?");
 
-        $rs = AWallet::sendAssetToAddress(
-            address: $addressToSendTo,
-            asset: AWallet::getAssetObject(
-                amount: $selectedAssets['qty'],
-                hash: $selectedAssets['name'],
-                metaData: null
-            ),
-        );
+            $rs = AWallet::sendAssetToAddress(
+                address: $addressToSendTo,
+                asset: AWallet::getPaymentAssetObject(
+                    amount: $selectedAssets['qty'],
+                    hash: $selectedAssets['name'],
+                    metaData: null
+                ),
+            );
 
-        dump($rs);
+            dump($rs);
+        } catch (\Exception $e) {
+            $this->error($e->getMessage());
+        }
     }
 }
